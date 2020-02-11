@@ -19,6 +19,7 @@ public class Codes
     public int _codeLength;
     public int _codeCount;
     public long _timeout;
+    public String _specifiedCode;
 
     private static String _getRandomGiftCode(int length)
     {
@@ -138,8 +139,7 @@ public class Codes
         {
             for (String code : rt)
                 codes.put(code, true);
-        } else
-        {
+        } else {
             publicGiftCode = rt.get(0);
         }
     }
@@ -154,22 +154,38 @@ public class Codes
 
     private List<String> getRandomGiftCode(List<String> list, int count)
     {
-        LinkedList<String> llist = new LinkedList<>();
-        for (int i = 0; i < count; )
+        if(_specifiedCode.isEmpty() || isOneTime)
         {
-            while (true)
+            LinkedList<String> llist = new LinkedList<>();
+            for (int i = 0; i < count; )
             {
-                String temp = _getRandomGiftCode(_codeLength);
-                if (!list.contains(temp) && temp.length() == _codeLength)
+                while (true)
                 {
-                    list.add(temp);
-                    llist.add(temp);
-                    break;
+                    String temp = _getRandomGiftCode(_codeLength);
+                    boolean notExist = !list.contains(temp) && GiftCodePlugin.ins.getCodesWithGiftCode(temp)==null;
+
+                    if (notExist)
+                    {
+                        list.add(temp);
+                        llist.add(temp);
+                        break;
+                    }
                 }
+                i++;
             }
-            i++;
+
+            return llist;
+        }else {
+            String b = _specifiedCode;
+
+            while (b.contains("*"))
+            {
+                b = b.replaceFirst("\\*", _getRandomGiftCode(1));
+            }
+
+            return Arrays.asList(b);
         }
-        return llist;
+
     }
 
     public boolean isModified()

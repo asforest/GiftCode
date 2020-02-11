@@ -1,6 +1,6 @@
 package cn.innc11.giftcode;
 
-import cn.innc11.giftcode.config.GiftCodeSetConfig;
+import cn.innc11.giftcode.config.GiftCodesConfig;
 import cn.innc11.giftcode.config.GiftsConfig;
 import cn.innc11.giftcode.dt.Codes;
 import cn.innc11.giftcode.dt.Gift;
@@ -26,7 +26,7 @@ public class GiftCodePlugin extends PluginBase implements Listener
     public HashMap<UUID, Gift> gifts = new HashMap<>();
     public HashMap<String, String> inputCache = new HashMap<>();
     GiftsConfig giftsConfig;
-    GiftCodeSetConfig giftCodeSetConfig;
+    GiftCodesConfig giftCodeSetConfig;
     public String charPool;
 
     public void loadConfig()
@@ -71,7 +71,7 @@ public class GiftCodePlugin extends PluginBase implements Listener
     {
         ins = this;
         giftsConfig = new GiftsConfig();
-        giftCodeSetConfig = new GiftCodeSetConfig();
+        giftCodeSetConfig = new GiftCodesConfig();
         saveDefaultConfig();
         loadConfig();
         registerEvents();
@@ -99,9 +99,7 @@ public class GiftCodePlugin extends PluginBase implements Listener
 
             if(!code.isEmpty())
             {
-                RedeemCodePanel rcp = new RedeemCodePanel((Player) sender, code);
-
-                ((Player) sender).showFormWindow(rcp);
+                ((Player) sender).showFormWindow(new RedeemCodePanel((Player) sender, code));
                 return true;
             }
 
@@ -172,7 +170,7 @@ public class GiftCodePlugin extends PluginBase implements Listener
         return (codes.remove(uuid) != null);
     }
 
-    public Codes getCodeSetWithGiftCode(String giftCode)
+    public Codes getCodesWithGiftCode(String giftCode)
     {
         for (Codes codeSet : codes.values())
         {

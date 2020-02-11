@@ -5,9 +5,9 @@ import cn.innc11.giftcode.dt.Codes;
 
 import java.util.UUID;
 
-public class GiftCodeSetConfig extends MyConfig
+public class GiftCodesConfig extends MyConfig
 {
-    public GiftCodeSetConfig()
+    public GiftCodesConfig()
     {
         super("giftCodes.yml");
     }
@@ -34,6 +34,7 @@ public class GiftCodeSetConfig extends MyConfig
             codeSet._codeLength = config.getInt(key + "._codeLength");
             codeSet._codeCount = config.getInt(key + "._codeCount");
             codeSet._timeout = config.getInt(key + "._timeout");
+            codeSet._specifiedCode = config.getString(key + "._specifiedCode", "");
             for (String codeKey : config.getSection(key + ".codes").getKeys(false))
             {
                 String k = codeKey;
@@ -60,6 +61,7 @@ public class GiftCodeSetConfig extends MyConfig
             config.set(uuid + "._codeLength", Integer.valueOf(codeSet._codeLength));
             config.set(uuid + "._codeCount", Integer.valueOf(codeSet._codeCount));
             config.set(uuid + "._timeout", Long.valueOf(codeSet._timeout));
+            config.set(uuid + "._specifiedCode", codeSet._specifiedCode);
             codeSet.codes.forEach((k, v)->config.set(uuid + ".codes." + k, v));
         }
         config.save();

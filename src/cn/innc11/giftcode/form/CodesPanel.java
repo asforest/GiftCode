@@ -7,6 +7,7 @@ import cn.nukkit.Player;
 import cn.nukkit.event.player.PlayerFormRespondedEvent;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.window.FormWindowSimple;
+import cn.nukkit.utils.TextFormat;
 
 import java.text.SimpleDateFormat;
 import java.util.UUID;
@@ -86,6 +87,7 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
         addButton(new ElementButton("设置参数并重新生成\n"));
         addButton(new ElementButton((codes.enable ? "禁" : "启") + "用这组礼包码\n当前: " + (codes.enable ? "启用" : "禁用")));
         addButton(new ElementButton("在后台打印礼包码和使用过的玩家"));
+        addButton(new ElementButton("礼包码预览"));
         addButton(new ElementButton(codes.isInitialized() ? "重新生成礼包码" : "生成礼包码"));
         addButton(new ElementButton("删除这组礼包码"));
 
@@ -137,10 +139,21 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
                 } else {
                     plugin.sendTitleMessage(player, "礼包码没有生成", ()->player.showFormWindow(new CodesPanel(codes.uuid)));
                 }
-
+                break;
             }
 
             case 4:
+            {
+                if (codes.isInitialized())
+                {
+                    plugin.sendTitleMessage(player, TextFormat.colorize("&L预览加载中"), ()->player.showFormWindow(new CodesPreviewPanel(codes.uuid)));
+                } else {
+                    plugin.sendTitleMessage(player, "礼包码没有生成", ()->player.showFormWindow(new CodesPanel(codes.uuid)));
+                }
+                break;
+            }
+
+            case 5:
             {
                 if (codes.isInitialized())
                 {
@@ -166,7 +179,7 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
                 break;
             }
 
-            case 5:
+            case 6:
             {
                 player.showFormWindow(new RemoveCodeSetConfirmPanel(codes.uuid));
                 break;

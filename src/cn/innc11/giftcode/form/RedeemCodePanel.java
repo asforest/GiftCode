@@ -37,7 +37,7 @@ public class RedeemCodePanel extends FormWindowCustom implements FormResponse
         String playerName = player.getName();
         GiftCodePlugin plugin = GiftCodePlugin.ins;
         String codeText = getResponse().getInputResponse(0);
-        Codes codeSet = plugin.getCodeSetWithGiftCode(codeText);
+        Codes codeSet = plugin.getCodesWithGiftCode(codeText);
 
         if (codeSet != null)
         {

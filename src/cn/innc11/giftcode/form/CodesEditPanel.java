@@ -31,7 +31,7 @@ public class CodesEditPanel extends FormWindowCustom implements FormResponse
         Gift gift = plugin.getGiftWithUUID(codes.giftUuid);
         List<String> gifts = getAllGiftLabels();
 
-        int giftDropDownIndex = (gift == null) ? 0 : gifts.indexOf(gift.label);
+        int giftDropDownIndex = (gift == null) ? 0 : gifts.indexOf(gift.label)+1;
         String count = (codes._codeCount == 0) ? "" : String.valueOf(codes._codeCount);
         int minutes = codes.DgetMinutes();
         int hours = codes.DgetHours();
@@ -56,6 +56,7 @@ public class CodesEditPanel extends FormWindowCustom implements FormResponse
         addElement(new ElementSlider("时限-小时", 0.0F, 23.0F, 1, hours));
         addElement(new ElementSlider("时限-天", 0.0F, 180.0F, 1, days));
         addElement(new ElementSlider("礼包码的长度", 4.0F, 16.0F, 1, length));
+        addElement(new ElementInput("手动指定礼包码", "留空则不使用,一个*号代表一个随机字符", codes._specifiedCode));
     }
 
     @Override
@@ -79,12 +80,25 @@ public class CodesEditPanel extends FormWindowCustom implements FormResponse
         int hours = (int) getResponse().getSliderResponse(3);
         int days = (int) getResponse().getSliderResponse(4);
         int length = (int) getResponse().getSliderResponse(5);
+        String specifiedCode = getResponse().getInputResponse(6);
 
-        if (!Pattern.matches("^\\d+$", count))
+        if(!count.isEmpty())
         {
-            plugin.sendTitleMessage(player, "礼包码数量只能是数字且不能留空", () -> player.showFormWindow(new CodesEditPanel(codes.uuid)));
-            return;
+            if (!Pattern.matches("^\\d+$", count))
+            {
+                plugin.sendTitleMessage(player, "礼包码数量只能是数字", () -> player.showFormWindow(new CodesEditPanel(codes.uuid)));
+                return;
+            }
+        }else {
+            if(!specifiedCode.isEmpty())
+            {
+                count = "0";
+            }else {
+                plugin.sendTitleMessage(player, "礼包码数量不能留空", () -> player.showFormWindow(new CodesEditPanel(codes.uuid)));
+                return;
+            }
         }
+
 
         if (giftLabel.equals("---"))
         {
@@ -95,11 +109,18 @@ public class CodesEditPanel extends FormWindowCustom implements FormResponse
         int Count = Integer.parseInt(count);
         long timeout = (minutes + hours * 60 + days * 24 * 60);
 
+        if(!specifiedCode.isEmpty() && Count!=0)
+        {
+            plugin.sendTitleMessage(player, "只有公用礼包码才能指定礼包码", () -> player.showFormWindow(new CodesEditPanel(codes.uuid)));
+            return;
+        }
+
         codes.giftUuid = plugin.getGiftWithLable(giftLabel).uuid;
         codes._codeCount = Count;
         codes._timeout = timeout;
         codes._codeLength = length;
         codes.isOneTime = (Count != 0);
+        codes._specifiedCode = specifiedCode;
 
         codes.regenerate();
         plugin.sendTitleMessage(player, "礼包码已经生成"+ (codes.isOneTime ? (" x &6&l" + codes._codeCount) : ""), () -> player.showFormWindow(new CodesPanel(codes.uuid)));
