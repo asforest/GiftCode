@@ -9,11 +9,11 @@ import cn.nukkit.utils.TextFormat;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class CodesPreviewPanel  extends FormWindowSimple implements FormResponse
+public class CodesOverviewPanel extends FormWindowSimple implements FormResponse
 {
 	String codesUUID;
 
-	public CodesPreviewPanel(UUID codesUuid)
+	public CodesOverviewPanel(UUID codesUuid)
 	{
 		super("", "");
 

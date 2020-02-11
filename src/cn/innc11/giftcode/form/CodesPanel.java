@@ -146,7 +146,7 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
             {
                 if (codes.isInitialized())
                 {
-                    plugin.sendTitleMessage(player, TextFormat.colorize("&L预览加载中"), ()->player.showFormWindow(new CodesPreviewPanel(codes.uuid)));
+                    plugin.sendTitleMessage(player, TextFormat.colorize("&L预览加载中"), ()->player.showFormWindow(new CodesOverviewPanel(codes.uuid)));
                 } else {
                     plugin.sendTitleMessage(player, "礼包码没有生成", ()->player.showFormWindow(new CodesPanel(codes.uuid)));
                 }
