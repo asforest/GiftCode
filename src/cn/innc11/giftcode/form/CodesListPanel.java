@@ -23,16 +23,15 @@ public class CodesListPanel extends FormWindowSimple implements FormResponse
 
 		GiftCodePlugin plugin = GiftCodePlugin.ins;
 
-		plugin.codes.forEach((k, v)->
+		for(Codes codes : plugin.codes.values())
 		{
-			Codes codes = v;
 			String string1 = codes.label;
 			String string2 = codes.isCompleteParameters() ? "("+ codes.getGift().label +")" : "";
-			String string3 = String.format("%d%s", codes.getUsedCount(), codes.isOneTime ? ("/" + codes.getTotalCount()) : "");
+			String string3 = String.format("%d%s", codes.getUsedCount(), codes.isOneTimeCodes() ? ("/" + codes.getTotalCount()) : "");
 
 			String buttonText = String.format("%s %s\n%s", string1, string2, string3);
 
-			if(codes.needRegenerate() || !codes.enable)
+			if(!codes.isGenerated() || !codes.enable)
 			{
 				buttonText = TextFormat.colorize("&l"+buttonText);
 			}
@@ -40,7 +39,7 @@ public class CodesListPanel extends FormWindowSimple implements FormResponse
 			addButton(new ElementButton(buttonText));
 
 			codesIndex += String.format("%s;", codes.uuid);
-		});
+		};
 
 	}
 

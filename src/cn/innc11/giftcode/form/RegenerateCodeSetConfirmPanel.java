@@ -22,7 +22,7 @@ public class RegenerateCodeSetConfirmPanel extends FormWindowModal implements Fo
 
         StringBuffer content = new StringBuffer();
         content.append("礼包码: " + codeSet.label + "\n");
-        content.append(String.format("使用情况: %s%s", codeSet.getUsedCount(), codeSet.isOneTime ? "/"+codeSet.getTotalCount() : "") + "\n");
+        content.append(String.format("使用情况: %s%s", codeSet.getUsedCount(), codeSet.isOneTimeCodes() ? "/"+codeSet.getTotalCount() : "") + "\n");
         content.append(getContent());
 
         setContent(content.toString());
@@ -60,8 +60,8 @@ public class RegenerateCodeSetConfirmPanel extends FormWindowModal implements Fo
             }
 
             codeSet.regenerate();
-            plugin.sendTitleMessage(player, "礼包码已经生成"+ (codeSet.isOneTime ? (" x &6" + codeSet._codeCount) : ""), () -> player.showFormWindow(new CodesPanel(UUID.fromString(codeSetUUID))));
-            plugin.saveGiftCodeSetConfig();
+            plugin.sendTitleMessage(player, "礼包码已经生成"+ (codeSet.isOneTimeCodes() ? (" x &6" + codeSet._codeCount) : ""), () -> player.showFormWindow(new CodesPanel(UUID.fromString(codeSetUUID))));
+            plugin.saveGiftCodesConfig();
         } else {
             player.showFormWindow(new CodesPanel(UUID.fromString(codeSetUUID)));
         }

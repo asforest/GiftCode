@@ -41,7 +41,7 @@ public class CodesLabelEditPanel extends FormWindowCustom implements FormRespons
         String newLabel = getResponse().getInputResponse(0);
         codes.label = newLabel;
 
-        GiftCodePlugin.ins.saveGiftCodeSetConfig();
+        GiftCodePlugin.ins.saveGiftCodesConfig();
         player.showFormWindow(new CodesPanel(UUID.fromString(codeSetUUID)));
     }
 }

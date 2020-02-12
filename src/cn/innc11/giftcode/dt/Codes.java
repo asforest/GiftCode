@@ -4,48 +4,60 @@ import cn.innc11.giftcode.GiftCodePlugin;
 import cn.nukkit.utils.TextFormat;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class Codes
 {
     public UUID uuid;
     public String label = "";
     public UUID giftUuid;
-    public boolean enable;
-    public boolean isOneTime;
-    public HashMap<String, Boolean> codes = new HashMap<>();
-    public String publicGiftCode = "";
-    public long timeOut;
-    public int _codeLength;
-    public int _codeCount;
-    public long _timeout;
-    public String _specifiedCode;
+    public boolean enable = false;
+    public long timeOut = 0L;
+
+    public HashMap<String, Boolean> codes = new HashMap<>(); // onetime Codes Or Used Players(value:false)
+    public String publicCode = "";
+
+    // generate parameter
+    public int _codeLength = 8;
+    public int _codeCount = 0;
+    public long _timeout = 0L;
+    public String _specifiedCode = "";
 
     private static String _getRandomGiftCode(int length)
     {
         String str = GiftCodePlugin.ins.charPool;
         Random random = new Random();
         StringBuffer sb = new StringBuffer(length);
+
         for (int i = 0; i < length; i++)
             sb.append(str.charAt(random.nextInt(str.length())));
+
         return sb.toString();
     }
 
     public int getUsedCount()
     {
         int count = 0;
-        if (isOneTime)
+        if (isOneTimeCodes())
         {
             for (String key : codes.keySet())
             {
                 if (!codes.get(key).booleanValue())
                     count++;
             }
-        } else
-        {
+        } else {
             count = codes.size();
         }
         return count;
+    }
+
+    public boolean isOneTimeCodes()
+    {
+        return publicCode.isEmpty();
+    }
+
+    public boolean isPublicCodes()
+    {
+        return !isOneTimeCodes();
     }
 
     public boolean isCompleteParameters()
@@ -65,18 +77,18 @@ public class Codes
 
     public int getTotalCount()
     {
-        int count = -1;
-        if (isOneTime)
-            count = codes.size();
-        return count;
+        if (isOneTimeCodes())
+            return codes.size();
+        else
+            return getUsedCount();
     }
 
     public void printToConsole()
     {
-        if (!isInitialized())
+        if (!isGenerated())
             return;
 
-        if (isOneTime)
+        if (isOneTimeCodes())
         {
             ArrayList<String> usedCodes = new ArrayList<>();
             ArrayList<String> unusedCodes = new ArrayList<>();
@@ -91,12 +103,11 @@ public class Codes
             GiftCodePlugin.ins.getLogger().info("没有使用过的礼包码(" + label + "):");
             printListToConsole(unusedCodes, "&a   ");
             GiftCodePlugin.ins.getLogger().info("-----------End------------");
-        } else
-        {
+        } else {
             ArrayList<String> usedCodes = new ArrayList<>();
             for (String codeText : codes.keySet())
                 usedCodes.add(codeText);
-            GiftCodePlugin.ins.getLogger().info(label + ": " + publicGiftCode);
+            GiftCodePlugin.ins.getLogger().info(label + ": " + publicCode);
             GiftCodePlugin.ins.getLogger().info("已经使用过的礼包码的玩家" + label + "):");
             printListToConsole(usedCodes, "&8   ");
             GiftCodePlugin.ins.getLogger().info("-----------End------------");
@@ -111,37 +122,33 @@ public class Codes
         }
     }
 
-    public boolean isInitialized()
+    public boolean isGenerated()
     {
-        if (isOneTime)
-            return !codes.isEmpty();
-        return !publicGiftCode.isEmpty();
-    }
+        if (isOneTimeCodes())
+            return getTotalCount()>0;
 
-    public boolean needRegenerate()
-    {
-        return getUsedCount() == 0 && getTotalCount() == 0;
+        return !publicCode.isEmpty();
     }
 
     public void regenerate()
     {
         codes.clear();
-        publicGiftCode = "";
-        LinkedList<String> list = new LinkedList<>();
-        for (Codes codeSet : GiftCodePlugin.ins.codes.values())
-        {
-            for (String code : codeSet.codes.keySet())
-                list.add(code);
-        }
+        publicCode = _codeCount==0? "5g9rtgh84hfh4t4gdf84fg56db1v":"";
         timeOut = (_timeout != 0L) ? (System.currentTimeMillis() / 1000L / 60L + _timeout) : 0L;
-        List<String> rt = getRandomGiftCode(list, isOneTime ? _codeCount : 1);
-        if (isOneTime)
+
+        List<String> genCodes = genRandomGiftCodes( isOneTimeCodes()? _codeCount : 1);
+
+        if (isOneTimeCodes())
         {
-            for (String code : rt)
+            for (String code : genCodes)
+            {
                 codes.put(code, true);
+            }
         } else {
-            publicGiftCode = rt.get(0);
+            publicCode = genCodes.get(0);
         }
+
+        GiftCodePlugin.ins.saveGiftCodesConfig();
     }
 
     public boolean isTimeout()
@@ -152,29 +159,26 @@ public class Codes
         return (cu > timeOut);
     }
 
-    private List<String> getRandomGiftCode(List<String> list, int count)
+    private List<String> genRandomGiftCodes(int count)
     {
-        if(_specifiedCode.isEmpty() || isOneTime)
-        {
-            LinkedList<String> llist = new LinkedList<>();
-            for (int i = 0; i < count; )
-            {
-                while (true)
-                {
-                    String temp = _getRandomGiftCode(_codeLength);
-                    boolean notExist = !list.contains(temp) && GiftCodePlugin.ins.getCodesWithGiftCode(temp)==null;
+        GiftCodePlugin plugin = GiftCodePlugin.ins;
 
-                    if (notExist)
-                    {
-                        list.add(temp);
-                        llist.add(temp);
-                        break;
-                    }
-                }
-                i++;
+        if( _specifiedCode.isEmpty() || isOneTimeCodes() )
+        {
+            LinkedList<String> results = new LinkedList<>();
+
+            for (int i = 0; i < count; i++)
+            {
+                String temp = null;
+
+                do{
+                    temp = _getRandomGiftCode(_codeLength);
+                }while (plugin.getCodesWithGiftCode(temp)!=null);
+
+                results.add(temp);
             }
 
-            return llist;
+            return results;
         }else {
             String b = _specifiedCode;
 
@@ -188,14 +192,6 @@ public class Codes
 
     }
 
-    public boolean isModified()
-    {
-        boolean modified = false;
-        if (!codes.isEmpty())
-            modified = (isOneTime && Pattern.matches("^[a-zA-Z0-9]+$", (codes.keySet().toArray(new String[0]))[0]));
-        return modified;
-    }
-
     public Gift getGift()
     {
         if (giftUuid != null)
@@ -203,21 +199,21 @@ public class Codes
         return null;
     }
 
-    public int DgetDays()
+    public int getDeadlineDays()
     {
         if (_timeout >= 1440L)
             return (int) (_timeout / 1440L);
         return 0;
     }
 
-    public int DgetHours()
+    public int getDeadlineHours()
     {
         if (_timeout >= 60L)
             return (int) (_timeout % 1440L / 60L);
         return 0;
     }
 
-    public int DgetMinutes()
+    public int getDeadlineMinutes()
     {
         if (_timeout >= 60L)
             return (int) (_timeout % 60L);

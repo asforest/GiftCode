@@ -41,8 +41,8 @@ public class RemoveCodeSetConfirmPanel extends FormWindowModal implements FormRe
 
         if (getResponse().getClickedButtonId() == 0)
         {
-            GiftCodePlugin.ins.removeCodeSetWithUUID(codeSetUUID);
-            GiftCodePlugin.ins.saveGiftCodeSetConfig();
+            GiftCodePlugin.ins.removeCodesWithUUID(codeSetUUID);
+            GiftCodePlugin.ins.saveGiftCodesConfig();
             player.showFormWindow(new CodesListPanel());
         } else {
             player.showFormWindow(new CodesPanel(UUID.fromString(codeSetUUID)));

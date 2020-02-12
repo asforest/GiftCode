@@ -7,9 +7,7 @@ import cn.nukkit.event.player.PlayerFormRespondedEvent;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.window.FormWindowSimple;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class GiftListPanel extends FormWindowSimple implements FormResponse
 {
@@ -22,13 +20,12 @@ public class GiftListPanel extends FormWindowSimple implements FormResponse
 
         addButton(new ElementButton("添加新的礼包"));
 
-        GiftCodePlugin.ins.gifts.forEach((giftUuid, gift)->
+        for( Gift gift : GiftCodePlugin.ins.gifts.values())
         {
-            String buttonText = String.format("%s: (%d个物品)", gift.label, gift.items.size());
+            String buttonText = String.format("%s (%d个物品)", gift.label, gift.items.size());
             giftLabels += String.format("%s;", gift.uuid);
             addButton(new ElementButton(buttonText));
-        });
-
+        }
     }
 
     @Override

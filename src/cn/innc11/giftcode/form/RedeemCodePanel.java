@@ -55,7 +55,7 @@ public class RedeemCodePanel extends FormWindowCustom implements FormResponse
                 return;
             }
 
-            if (codeSet.isOneTime)
+            if (codeSet.isOneTimeCodes())
             {
                 boolean used = !codeSet.codes.get(codeText);
 
@@ -68,7 +68,7 @@ public class RedeemCodePanel extends FormWindowCustom implements FormResponse
                         player.sendMessage("礼包码兑换成功");
                         codeSet.codes.put(codeText, false);
                         plugin.inputCache.put(playerName, "");
-                        plugin.saveGiftCodeSetConfig();
+                        plugin.saveGiftCodesConfig();
                     }else {
                         player.sendMessage("背包空间不够,需要"+ gift.items.size() + "格空间");
                         plugin.inputCache.put(playerName, codeText);
@@ -89,7 +89,7 @@ public class RedeemCodePanel extends FormWindowCustom implements FormResponse
                         player.sendMessage("礼包码兑换成功");
                         codeSet.codes.put(playerName, false);
                         plugin.inputCache.put(playerName, "");
-                        plugin.saveGiftCodeSetConfig();
+                        plugin.saveGiftCodesConfig();
                         return;
                     } else {
                         player.sendMessage("背包空间不够,需要"+ gift.items.size() + "格空间");

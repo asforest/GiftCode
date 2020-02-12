@@ -16,6 +16,7 @@ import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.PluginTask;
 import cn.nukkit.utils.TextFormat;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -31,8 +32,21 @@ public class GiftCodePlugin extends PluginBase implements Listener
 
     public void loadConfig()
     {
+        File giftCodesFile = new File(getDataFolder(), "giftCodes.yml");
+        File gift_CodesFile = new File(getDataFolder(), "gift-codes.yml");
+
+
+        if(!gift_CodesFile.exists() && giftCodesFile.exists())
+        {
+            giftCodesFile.renameTo(gift_CodesFile);
+            getLogger().info(TextFormat.colorize("&eUpgrade the giftCode.yml -> gift-codes.yml"));
+        }
+
+        giftsConfig = new GiftsConfig();
+        giftCodeSetConfig = new GiftCodesConfig();
+
         loadGiftsConfig();
-        loadGiftCodeSetConfig();
+        loadGiftCodesConfig();
         getLogger().info(TextFormat.colorize("Loaded Gifts: &e" + gifts.size()));
         getLogger().info(TextFormat.colorize("Loaded GiftCodeSet: &e" + codes.size()));
 
@@ -52,12 +66,12 @@ public class GiftCodePlugin extends PluginBase implements Listener
         giftsConfig.reload();
     }
 
-    public void saveGiftCodeSetConfig()
+    public void saveGiftCodesConfig()
     {
         giftCodeSetConfig.save();
     }
 
-    public void loadGiftCodeSetConfig()
+    public void loadGiftCodesConfig()
     {
         giftCodeSetConfig.reload();
     }
@@ -70,14 +84,13 @@ public class GiftCodePlugin extends PluginBase implements Listener
     public void onEnable()
     {
         ins = this;
-        giftsConfig = new GiftsConfig();
-        giftCodeSetConfig = new GiftCodesConfig();
         saveDefaultConfig();
         loadConfig();
         registerEvents();
         getServer().getPluginManager().registerEvents(this, this);
     }
 
+    // @EventHandler
     public void onPlayerSnake(PlayerToggleSprintEvent e)
     {
         if (e.getPlayer().isSprinting())
@@ -123,7 +136,7 @@ public class GiftCodePlugin extends PluginBase implements Listener
         return gifts.get(uuid);
     }
 
-    public Gift getGiftWithLable(String lable)
+    public Gift getGiftWithLabel(String lable)
     {
         for (Gift gift : gifts.values())
         {
@@ -160,12 +173,12 @@ public class GiftCodePlugin extends PluginBase implements Listener
         return codes.get(uuid);
     }
 
-    public boolean removeCodeSetWithUUID(String uuid)
+    public boolean removeCodesWithUUID(String uuid)
     {
-        return removeCodeSetWithUUID(UUID.fromString(uuid));
+        return removeCodesWithUUID(UUID.fromString(uuid));
     }
 
-    public boolean removeCodeSetWithUUID(UUID uuid)
+    public boolean removeCodesWithUUID(UUID uuid)
     {
         return (codes.remove(uuid) != null);
     }
@@ -174,24 +187,24 @@ public class GiftCodePlugin extends PluginBase implements Listener
     {
         for (Codes codeSet : codes.values())
         {
-            if (codeSet.isOneTime)
+            if (codeSet.isOneTimeCodes())
             {
                 if (codeSet.codes.containsKey(giftCode))
                     return codeSet;
                 continue;
             }
-            if (codeSet.publicGiftCode.equals(giftCode))
+            if (codeSet.publicCode.equals(giftCode))
                 return codeSet;
         }
         return null;
     }
 
-    public void addCodeSet(Codes codeSet)
+    public void addCodes(Codes codeSet)
     {
         codes.put(codeSet.uuid, codeSet);
     }
 
-    public void sendTitleMessage(Player player, String text, final Runnable task)
+    public void sendTitleMessage(Player player, String text, final Runnable task, int delayTick)
     {
         player.sendTitle(TextFormat.colorize(text));
         player.sendMessage(TextFormat.colorize(text));
@@ -202,6 +215,11 @@ public class GiftCodePlugin extends PluginBase implements Listener
                 if (task != null)
                     task.run();
             }
-        }, 60);
+        }, delayTick);
+    }
+
+    public void sendTitleMessage(Player player, String text, final Runnable task)
+    {
+        sendTitleMessage(player, text, task, 60);
     }
 }

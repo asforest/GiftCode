@@ -7,4 +7,5 @@ description: gift code plugin
 commands:
   giftcode:
     usage: "/code"
+    aliases: ["code"]
     description: "open the panel of GiftCode"

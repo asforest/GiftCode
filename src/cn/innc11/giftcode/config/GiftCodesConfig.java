@@ -9,7 +9,7 @@ public class GiftCodesConfig extends MyConfig
 {
     public GiftCodesConfig()
     {
-        super("giftCodes.yml");
+        super("gift-codes.yml");
     }
 
     public void reload()
@@ -20,15 +20,14 @@ public class GiftCodesConfig extends MyConfig
         {
             Codes codeSet = new Codes();
             codeSet.uuid = UUID.fromString(config.getString(key + ".uuid"));
-            codeSet.label = config.getString(key + ".lable");
+            codeSet.label = config.getString(key + ".label", config.getString(key + ".lable", ""));
             codeSet.giftUuid = !config.getString(key + ".giftUuid").isEmpty() ? UUID.fromString(config.getString(key + ".giftUuid")) : null;
             codeSet.enable = config.getBoolean(key + ".enable");
-            codeSet.isOneTime = config.getBoolean(key + ".isOneTime");
             if(config.exists(key + ".giftCode_whileNotOneTime"))
             {
-                codeSet.publicGiftCode = config.getString(key + ".giftCode_whileNotOneTime");
+                codeSet.publicCode = config.getString(key + ".giftCode_whileNotOneTime");
             }else {
-                codeSet.publicGiftCode = config.getString(key + ".publicGiftCode");
+                codeSet.publicCode = config.getString(key + ".publicGiftCode");
             }
             codeSet.timeOut = config.getInt(key + ".timeOut");
             codeSet._codeLength = config.getInt(key + "._codeLength");
@@ -51,18 +50,17 @@ public class GiftCodesConfig extends MyConfig
         for (Codes codeSet : GiftCodePlugin.ins.codes.values())
         {
             String uuid = codeSet.uuid.toString();
-            config.set(uuid + ".lable", codeSet.label);
             config.set(uuid + ".uuid", uuid);
+            config.set(uuid + ".label", codeSet.label);
             config.set(uuid + ".giftUuid", (codeSet.giftUuid == null) ? "" : codeSet.giftUuid.toString());
             config.set(uuid + ".enable", Boolean.valueOf(codeSet.enable));
-            config.set(uuid + ".isOneTime", Boolean.valueOf(codeSet.isOneTime));
-            config.set(uuid + ".publicGiftCode", codeSet.publicGiftCode);
             config.set(uuid + ".timeOut", Long.valueOf(codeSet.timeOut));
+            config.set(uuid + ".publicGiftCode", codeSet.publicCode);
+            codeSet.codes.forEach((k, v)->config.set(uuid + ".codes." + k, v));
             config.set(uuid + "._codeLength", Integer.valueOf(codeSet._codeLength));
             config.set(uuid + "._codeCount", Integer.valueOf(codeSet._codeCount));
             config.set(uuid + "._timeout", Long.valueOf(codeSet._timeout));
             config.set(uuid + "._specifiedCode", codeSet._specifiedCode);
-            codeSet.codes.forEach((k, v)->config.set(uuid + ".codes." + k, v));
         }
         config.save();
     }

@@ -21,7 +21,7 @@ public class CodesOverviewPanel extends FormWindowSimple implements FormResponse
 
 		Codes codes = GiftCodePlugin.ins.getCodesWithUUID(codesUuid);
 
-		setTitle(codes.label+"使用情况预览");
+		setTitle(codes.label+"使用情况概览");
 
 		ArrayList<String> used = new ArrayList<String>();
 		ArrayList<String> unused = new ArrayList<String>();
@@ -30,7 +30,7 @@ public class CodesOverviewPanel extends FormWindowSimple implements FormResponse
 		{
 			boolean isUnused = codes.codes.get(codeOrPlayer);
 
-			if(codes.isOneTime)
+			if(codes.isOneTimeCodes())
 			{
 				(isUnused? unused:used).add(codeOrPlayer);
 			}else{
@@ -39,7 +39,7 @@ public class CodesOverviewPanel extends FormWindowSimple implements FormResponse
 		}
 
 		StringBuffer content = new StringBuffer();
-		if(codes.isOneTime)
+		if(codes.isOneTimeCodes())
 		{
 			content.append("&b&l没有使用过的礼包码: ("+unused.size()+")\n&a");
 			for (String p : unused)
@@ -55,7 +55,7 @@ public class CodesOverviewPanel extends FormWindowSimple implements FormResponse
 				content.append("\n");
 			}
 		}else{
-			content.append("&b礼包码: &e"+codes.publicGiftCode+"\n");
+			content.append("&b礼包码: &e"+codes.publicCode +"\n");
 			content.append("&b&l已经使用过的玩家: ("+used.size()+")\n&8");
 
 			for (String p : used)

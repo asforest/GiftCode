@@ -46,16 +46,16 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
                 content.append("- 礼包码没有启用\n");
             }
 
-            if (codes.isInitialized())
+            if (codes.isGenerated())
             {
-                if (codes.isOneTime)
+                if (codes.isOneTimeCodes())
                 {
                     content.append(String.format("- 使用情况: %d/%d\n", codes.getUsedCount(), codes.getTotalCount()));
                 } else {
                     content.append(String.format("- 使用情况: %d\n", codes.getUsedCount()));
                 }
 
-                if(codes.needRegenerate())
+                if(!codes.isGenerated())
                 {
                     content.append("- 礼包码需要重新生成\n");
                 }
@@ -74,11 +74,9 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
             } while(plugin.codes.containsKey(uuid));
 
             codes.label = codes.uuid.toString().substring(0, 6);
-            codes.giftUuid = null;
-            codes.isOneTime = true;
-            codes._timeout = 0L;
 
-            plugin.addCodeSet(codes);
+            plugin.addCodes(codes);
+            plugin.saveGiftCodesConfig();
         }
 
         codesUUID = codes.uuid.toString();
@@ -87,8 +85,8 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
         addButton(new ElementButton("设置参数并重新生成\n"));
         addButton(new ElementButton((codes.enable ? "禁" : "启") + "用这组礼包码\n当前: " + (codes.enable ? "启用" : "禁用")));
         addButton(new ElementButton("在后台打印礼包码和使用过的玩家"));
-        addButton(new ElementButton("礼包码预览"));
-        addButton(new ElementButton(codes.isInitialized() ? "重新生成礼包码" : "生成礼包码"));
+        addButton(new ElementButton("礼包码概览"));
+        addButton(new ElementButton(codes.isGenerated() ? "重新生成礼包码" : "生成礼包码"));
         addButton(new ElementButton("删除这组礼包码"));
 
     }
@@ -125,14 +123,14 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
             case 2:
             {
                 codes.enable = !codes.enable;
-                plugin.saveGiftCodeSetConfig();
+                plugin.saveGiftCodesConfig();
                 player.showFormWindow(new CodesPanel(codes.uuid));
                 break;
             }
 
             case 3:
             {
-                if (codes.isInitialized())
+                if (codes.isGenerated())
                 {
                     plugin.sendTitleMessage(player, "已在后台打印", ()->player.showFormWindow(new CodesPanel(codes.uuid)));
                     codes.printToConsole();
@@ -144,9 +142,9 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
 
             case 4:
             {
-                if (codes.isInitialized())
+                if (codes.isGenerated())
                 {
-                    plugin.sendTitleMessage(player, TextFormat.colorize("&L预览加载中"), ()->player.showFormWindow(new CodesOverviewPanel(codes.uuid)));
+                    plugin.sendTitleMessage(player, TextFormat.colorize("&L概览加载中"), ()->player.showFormWindow(new CodesOverviewPanel(codes.uuid)));
                 } else {
                     plugin.sendTitleMessage(player, "礼包码没有生成", ()->player.showFormWindow(new CodesPanel(codes.uuid)));
                 }
@@ -155,7 +153,7 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
 
             case 5:
             {
-                if (codes.isInitialized())
+                if (codes.isGenerated())
                 {
                     player.showFormWindow(new RegenerateCodeSetConfirmPanel(codes.uuid));
                     break;
@@ -174,8 +172,8 @@ public class CodesPanel extends FormWindowSimple implements FormResponse
                 }
 
                 codes.regenerate();
-                plugin.saveGiftCodeSetConfig();
-                plugin.sendTitleMessage(player, "礼包码已经生成"+ (codes.isOneTime ? (" x &6&l" + codes._codeCount) : ""), () -> player.showFormWindow(new CodesPanel(codes.uuid)));
+                plugin.saveGiftCodesConfig();
+                plugin.sendTitleMessage(player, "礼包码已经生成"+ (codes.isOneTimeCodes() ? (" x &6&l" + codes._codeCount) : ""), () -> player.showFormWindow(new CodesPanel(codes.uuid)));
                 break;
             }
 

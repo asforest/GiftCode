@@ -13,6 +13,7 @@ import cn.nukkit.utils.TextFormat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -33,9 +34,9 @@ public class CodesEditPanel extends FormWindowCustom implements FormResponse
 
         int giftDropDownIndex = (gift == null) ? 0 : gifts.indexOf(gift.label)+1;
         String count = (codes._codeCount == 0) ? "" : String.valueOf(codes._codeCount);
-        int minutes = codes.DgetMinutes();
-        int hours = codes.DgetHours();
-        int days = codes.DgetDays();
+        int minutes = codes.getDeadlineMinutes();
+        int hours = codes.getDeadlineHours();
+        int days = codes.getDeadlineDays();
         int length = codes._codeLength;
 
         if (giftDropDownIndex == -1)
@@ -99,7 +100,6 @@ public class CodesEditPanel extends FormWindowCustom implements FormResponse
             }
         }
 
-
         if (giftLabel.equals("---"))
         {
             plugin.sendTitleMessage(player, "对应的礼包不能为空", () -> player.showFormWindow(new CodesEditPanel(codes.uuid)));
@@ -115,23 +115,28 @@ public class CodesEditPanel extends FormWindowCustom implements FormResponse
             return;
         }
 
-        codes.giftUuid = plugin.getGiftWithLable(giftLabel).uuid;
+        codes.giftUuid = plugin.getGiftWithLabel(giftLabel).uuid;
         codes._codeCount = Count;
         codes._timeout = timeout;
         codes._codeLength = length;
-        codes.isOneTime = (Count != 0);
         codes._specifiedCode = specifiedCode;
 
         codes.regenerate();
-        plugin.sendTitleMessage(player, "礼包码已经生成"+ (codes.isOneTime ? (" x &6&l" + codes._codeCount) : ""), () -> player.showFormWindow(new CodesPanel(codes.uuid)));
+        plugin.sendTitleMessage(player, "礼包码已经生成"+ (codes.isOneTimeCodes() ? (" x &6&l" + codes._codeCount) : ""), () -> player.showFormWindow(new CodesPanel(codes.uuid)));
 
-        plugin.saveGiftCodeSetConfig();
+        // already called in codes.regenerate();
+        // plugin.saveGiftCodeSetConfig();
     }
 
     public ArrayList<String> getAllGiftLabels()
     {
         ArrayList<String> list = new ArrayList<>();
-        GiftCodePlugin.ins.gifts.forEach((k, v)->list.add(v.label));
+
+        for (Gift gift : GiftCodePlugin.ins.gifts.values())
+        {
+            list.add(gift.label);
+        }
+
         return list;
     }
 

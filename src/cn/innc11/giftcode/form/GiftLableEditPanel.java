@@ -42,7 +42,7 @@ public class GiftLableEditPanel extends FormWindowCustom implements FormResponse
         Gift gift = plugin.getGiftWithUUID(giftUUID);
         String newLabel = getResponse().getInputResponse(0);
 
-        if (plugin.getGiftWithLable(newLabel) == null)
+        if (plugin.getGiftWithLabel(newLabel) == null)
         {
             gift.label = newLabel;
             player.showFormWindow(new GiftPanel(UUID.fromString(giftUUID)));
